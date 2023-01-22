@@ -1,7 +1,13 @@
-# Vue 3 + Vite
+# 播放器组件
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+vite + vue3 +[antd](https://www.antdv.com/docs/vue/introduce-cn)
 
-## Recommended IDE Setup
+## 清晰度切换组件---Definition
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+切换清晰度主要就是切换视频源
+
+注意点
+
+1. 保存当前播放时间
+2. 切换清晰度后，重新播放
+3. 同时对音频控制
