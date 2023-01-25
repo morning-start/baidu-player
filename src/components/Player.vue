@@ -1,35 +1,37 @@
 <template>
-  <video :src="defInfo.videoSrc[defInfo.defIndex]" ref="video" :width="videoInfo.width"
-    :currentTime="videoInfo.currentTime" />
-  <!-- <canvas ref="canvas"></canvas> -->
+  <video id="video" :src="defInfo.videoSrc[defInfo.defIndex]" ref="myVideo" :width="videoInfo.width"
+    :currentTime="videoInfo.currentTime" crossOrigin="anonymous" display="none" />
 
-  <div class="container">
-    <div class="button">
-      <play-circle-outlined :style="setting.lSize" v-show="videoInfo.status" @click="pause()" />
-      <pause-circle-outlined :style="setting.lSize" v-show="!videoInfo.status" @click="play()" />
-    </div>
-    <!-- <div class="range">
+  <div class="player">
+    <canvas ref="canvas" id="cvs" :width="ctxInfo.width" :height="ctxInfo.height" :style="ctxInfo.style"></canvas>
+
+    <div class="container">
+      <div class="button">
+        <play-circle-outlined :style="setting.lSize" v-show="videoInfo.status" @click="pause()" />
+        <pause-circle-outlined :style="setting.lSize" v-show="!videoInfo.status" @click="play()" />
+      </div>
+      <!-- <div class="range">
     </div> -->
-    <input ref="range" type="range" min="0" :max="videoInfo.duration" v-model="videoInfo.currentTime">
-    <div class="definition" :style="{ fontSize: '15px', color: '#fff' }">
-      <a-dropdown placement="top">
-        <a class="ant-dropdown-link" @click.prevent :style="{ fontSize: '16px', color: '#fff' }">
-          {{ defInfo.definition[defInfo.defIndex] }}
-        </a>
-        <template #overlay>
-          <a-menu :style="{ 'background-color': 'rgba(0, 0, 0, 0.5)' }">
-            <a-menu-item v-for="item, index in defInfo.definition"
-              :style="{ fontSize: '15px', color: '#fff', 'background-color': 'rgba(0, 0, 0, 0.5)' }">
-              <a href="javascript:;" @click.prevent="switchDef(index)">{{ item }}</a>
-            </a-menu-item>
-          </a-menu>
-        </template>
-      </a-dropdown>
+      <input ref="range" type="range" min="0" :max="videoInfo.duration" v-model="videoInfo.currentTime">
+      <div class="definition" :style="{ fontSize: '15px', color: '#fff' }">
+        <a-dropdown placement="top">
+          <a class="ant-dropdown-link" @click.prevent :style="{ fontSize: '16px', color: '#fff' }">
+            {{ defInfo.definition[defInfo.defIndex] }}
+          </a>
+          <template #overlay>
+            <a-menu :style="{ 'background-color': 'rgba(0, 0, 0, 0.5)' }">
+              <a-menu-item v-for="item, index in defInfo.definition"
+                :style="{ fontSize: '15px', color: '#fff', 'background-color': 'rgba(0, 0, 0, 0.5)' }">
+                <a href="javascript:;" @click.prevent="switchDef(index)">{{ item }}</a>
+              </a-menu-item>
+            </a-menu>
+          </template>
+        </a-dropdown>
+      </div>
+      <scissor-outlined :style="setting.rSize" @click="scissor" />
+      <bg-colors-outlined :style="setting.rSize" @click="colorReverse = !colorReverse" />
     </div>
-    <scissor-outlined :style="setting.rSize" />
-    <bg-colors-outlined :style="setting.rSize" />
   </div>
-  <canvas ref="canvas" :width="ctxInfo.width" :height="ctxInfo.height" :style="ctxInfo.style"></canvas>
 </template>
 
 <script setup>
@@ -54,55 +56,96 @@ let ctxInfo = {
 }
 
 // let canvas = ref(null) // canvas 对象
-let video = ref(null)// video 对象
+let myVideo = ref(null)// video 对象
 let range = ref(null) // range 对象
+
+
+function scissors() {
+  console.log('剪切');
+}
 
 
 // SECTION 播放暂停
 function pause() {
-  video.value.pause()
+  myVideo.value.pause()
 }
 function play() {
-  video.value.play()
+  myVideo.value.play()
 }
 // !SECTION
 
-let canvas = ref(null) // canvas 对象
-function draw() {
-
-  let ctx = canvas.value.getContext('2d');
-  // 画视频
-  ctx.fillStyle = "#000";
-  ctx.fillRect(10, 10, 100, 80);
+const initCanvas = () => {
+  // let cvs = document.getElementById('myCanvas');
+  const ctx = cvs.getContext('2d');
+  cvs.height = video.offsetHeight
+  cvs.width = video.offsetWidth
+  const playVideo = () => {
+    // 画视频
+    requestAnimationFrame(playVideo)
+    ctx.drawImage(video, 0, 0, video.offsetWidth, video.offsetHeight);
+    if (colorReverse) {
+      reverseColor(ctx)
+    }
+  }
+  playVideo()
 }
 
 
 onMounted(() => {
-  draw()
+  initCanvas()
 
-  video.value.addEventListener('loadedmetadata', () => {
+  myVideo.value.addEventListener('loadedmetadata', () => {
     /* 视频基本信息加载完成 */
-    videoInfo.duration = video.value.duration
+    videoInfo.duration = myVideo.value.duration
     // 视频长宽
-    // console.log(video.value.videoWidth, video.value.videoHeight);
-    // console.log(video.value.duration);
+    // console.log(myVideo.value.videoWidth, myVideo.value.videoHeight);
+    // console.log(myVideo.value.duration);
   })
 
   // 监听播放事件, 恢复当前播放时间
-  video.value.addEventListener('play', () => {
-    video.value.currentTime = videoInfo.currentTime
+  myVideo.value.addEventListener('play', () => {
+    myVideo.value.currentTime = videoInfo.currentTime
     videoInfo.status = true
   })
   // 监听暂停事件, 记录当前播放时间
-  video.value.addEventListener('pause', () => {
-    videoInfo.currentTime = video.value.currentTime
+  myVideo.value.addEventListener('pause', () => {
+    videoInfo.currentTime = myVideo.value.currentTime
     videoInfo.status = false
   })
   // 监听播放进度
-  video.value.addEventListener('timeupdate', () => {
-    range.value.value = video.value.currentTime
+  myVideo.value.addEventListener('timeupdate', () => {
+    range.value.value = myVideo.value.currentTime
   })
 })
+
+
+// SECTION 取反色
+let colorReverse = false
+
+/**
+ * @description: 获取视频像素并取反色
+ * @param {*} ctx canvas对象
+ * @return {*} null
+ */
+const reverseColor = (ctx) => {
+  // 获取视频像素
+  const imgData = ctx.getImageData(0, 0, video.offsetWidth, video.offsetHeight);
+  // 取反色
+  for (let i = 0; i < imgData.data.length; i += 4) {
+    imgData.data[i] = 255 - imgData.data[i];
+    imgData.data[i + 1] = 255 - imgData.data[i + 1];
+    imgData.data[i + 2] = 255 - imgData.data[i + 2];
+  }
+  // 画像素
+  ctx.putImageData(imgData, 0, 0);
+}
+
+// !SECTION
+
+
+// SECTION 截图
+
+// !SECTION
 
 // SECTION 切换清晰度
 let defInfo = reactive({
@@ -115,7 +158,7 @@ function switchDef(i) {
   if (i == defInfo.defIndex) return;// 防止重复点击
   defInfo.defIndex = i;
   // console.log(i);
-  video.value.pause()
+  myVideo.value.pause()
 }
 
 // TODO 对于没有src的video设置menu为disabled
@@ -124,15 +167,18 @@ function switchDef(i) {
 </script>
 
 <style scoped>
+.player {
+  position: relative;
+  left: 0;
+  top: -300px;
+  background-color: #fff;
+}
+
 .container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   background-color: rgba(0, 0, 0, 0.7);
-}
-
-.range {
-  flex-grow: 1;
 }
 
 input {
