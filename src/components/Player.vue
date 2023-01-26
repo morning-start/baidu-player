@@ -31,6 +31,7 @@
         </div>
         <scissor-outlined :style="setting.rSize" @click="manualCapture()" />
         <bg-colors-outlined :style="setting.rSize" @click="colorReverse = !colorReverse" />
+        <format-painter-outlined :style="setting.rSize" @click="mosaic = !mosaic" />
       </div>
     </div>
   </div>
@@ -38,7 +39,7 @@
 
 <script setup>
 import { ref, onMounted, reactive } from 'vue';
-import { PlayCircleOutlined, PauseCircleOutlined, BgColorsOutlined, ScissorOutlined } from '@ant-design/icons-vue';
+import { PlayCircleOutlined, PauseCircleOutlined, BgColorsOutlined, ScissorOutlined, FormatPainterOutlined } from '@ant-design/icons-vue';
 let setting = {
   lSize: { fontSize: '32px', margin: '0 5px', color: '#fff' },
   rSize: { fontSize: '20px', margin: '0 2px', color: '#fff' }
@@ -60,7 +61,7 @@ let defInfo = reactive({
 let myVideo = ref(null)// video 对象
 let range = ref(null) // range 对象
 let colorReverse = false // 是否取反色
-let mosaic = true // 是否马赛克
+let mosaic = false // 是否马赛克
 
 
 /**
@@ -129,17 +130,64 @@ const reverseColor = (ctx) => {
   ctx.putImageData(imgData, 0, 0);
 }
 
-// 画布部分马赛克
-const mosaicCanvas = (ctx, x = 0, y = 0, width = 100, height = 100) => {
-  let imgData = ctx.getImageData(0, 0, width, height)
-  let data = imgData.data
-  let w = imgData.width
-  let h = imgData.height
-  let r = 10
 
-  // console.log(r);
-  ctx.putImageData(imgData, 0, 0);
+/**
+ * @description: 获取坐标像素点数据的方法
+ * @param {*} imageData 图像数据
+ * @param {*} x 坐标 x
+ * @param {*} y 坐标 y
+ * @return {*} 像素点 rgba 数据
+ */
+function getPxColor(imageData, x, y) {
+  // 一个像素点颜色由4个值组成
+  let color = []
+  let width = imageData.width
+  color[0] = imageData.data[(y * width + x) * 4]
+  color[1] = imageData.data[(y * width + x) * 4 + 1]
+  color[2] = imageData.data[(y * width + x) * 4 + 2]
+  color[3] = imageData.data[(y * width + x) * 4 + 3]
+  return color
+}
 
+/**
+ * @description: 设置某个坐标的像素值
+ * @param {*} imageData 图像数据
+ * @param {*} x 坐标 x
+ * @param {*} y 坐标 y
+ * @param {*} color 像素点 rgba 数据
+ */
+function setPxColor(imageData, x, y, color) {
+  let width = imageData.width
+  imageData.data[(y * width + x) * 4] = color[0]
+  imageData.data[(y * width + x) * 4 + 1] = color[1]
+  imageData.data[(y * width + x) * 4 + 2] = color[2]
+  imageData.data[(y * width + x) * 4 + 3] = color[3]
+}
+
+/**
+ * @description: 将一个区域的像素点马赛克化
+ * @param {*} ctx context 对象
+ * @param {*} x 起始坐标 x
+ * @param {*} y 起始坐标 y
+ * @param {*} w 宽度
+ * @param {*} h 高度
+ */
+const mosaicCanvas = (ctx, x = 350, y = 50, w = 100, h = 100) => {
+  let imgData = ctx.getImageData(x, y, w, h)
+  let r = 10 // 马赛克半径
+  for (let i = 0; i < w; i += r) {
+    for (let j = 0; j < h; j += r) {
+      let color = getPxColor(imgData, i, j)
+      for (let m = 0; m < r; m++) {
+        for (let n = 0; n < r; n++) {
+          if (i + m < w && j + n < h) {
+            setPxColor(imgData, i + m, j + n, color)
+          }
+        }
+      }
+    }
+  }
+  ctx.putImageData(imgData, x, y);
 }
 
 /**
