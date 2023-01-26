@@ -3,9 +3,12 @@ import Player from './components/Player.vue';
 </script>
 
 <template>
-  <Player />
+  <Player class="player" />
 </template>
 
 <style scoped>
-
+.player {
+  position: relative;
+  margin-top: 50px;
+}
 </style>
