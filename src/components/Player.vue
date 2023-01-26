@@ -1,10 +1,10 @@
 <template>
-  <div class="player">
+  <div class="player" style="{ width: 600 }">
     <video id="video" :src="defInfo.videoSrc[defInfo.defIndex]" ref="myVideo" :width="videoInfo.width"
       :currentTime="videoInfo.currentTime" crossOrigin="anonymous" />
 
     <div class="container">
-      <canvas ref="canvas" id="cvs" width="800" height="450"></canvas>
+      <canvas ref="canvas" id="cvs" :width="ctxInfo.width" :height="ctxInfo.height"></canvas>
 
       <div class="control">
         <div class="button">
@@ -29,24 +29,32 @@
             </template>
           </a-dropdown>
         </div>
-        <scissor-outlined :style="setting.rSize" @click="manualCapture()" />
+        <scissor-outlined :style="setting.rSize" @click="shot ? shot = !shot : manualCapture()" />
         <bg-colors-outlined :style="setting.rSize" @click="colorReverse = !colorReverse" />
         <format-painter-outlined :style="setting.rSize" @click="mosaic = !mosaic" />
       </div>
+    </div>
+    <div class="output" v-show="shot">
+      <img id="img" src="" alt="">
+      <a-button class="download" type="primary" shape="circle" size="large" @click="download()">
+        <template #icon>
+          <DownloadOutlined />
+        </template>
+      </a-button>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, reactive } from 'vue';
-import { PlayCircleOutlined, PauseCircleOutlined, BgColorsOutlined, ScissorOutlined, FormatPainterOutlined } from '@ant-design/icons-vue';
+import { PlayCircleOutlined, PauseCircleOutlined, BgColorsOutlined, ScissorOutlined, FormatPainterOutlined, DownloadOutlined } from '@ant-design/icons-vue';
 let setting = {
   lSize: { fontSize: '32px', margin: '0 5px', color: '#fff' },
   rSize: { fontSize: '20px', margin: '0 2px', color: '#fff' }
 }
 
 let videoInfo = reactive({
-  width: 800, // 视频宽度
+  width: 600, // 视频宽度
   status: false, // 播放状态 0 暂停 1 播放
   duration: 0, // 总时长
   currentTime: 0, // 当前播放时间
@@ -58,8 +66,14 @@ let defInfo = reactive({
   videoSrc: ['/public/Butterfly Anime Girl.mp4', '/public/《崩坏3》识之律者.mp4', '/public/《崩坏3》迷城骇兔.mp4']
 })
 
+let ctxInfo = {
+  width: videoInfo.width, // canvas 宽度
+  height: videoInfo.width * 9 / 16, // canvas 高度
+}
+
 let myVideo = ref(null)// video 对象
 let range = ref(null) // range 对象
+let shot = ref(false) // 是否截图
 let colorReverse = false // 是否取反色
 let mosaic = false // 是否马赛克
 
@@ -106,7 +120,9 @@ const initCanvas = () => {
       reverseColor(ctx)
     }
     if (mosaic) {
-      mosaicCanvas(ctx)
+      let size = 80
+      // 设置为马赛克覆盖头部
+      mosaicCanvas(ctx, ctxInfo.width / 2 - size / 2, 0.1 * ctxInfo.height, size, size)
     }
   }
   playVideo()
@@ -172,7 +188,7 @@ function setPxColor(imageData, x, y, color) {
  * @param {*} w 宽度
  * @param {*} h 高度
  */
-const mosaicCanvas = (ctx, x = 350, y = 50, w = 100, h = 100) => {
+const mosaicCanvas = (ctx, x = 0, y = 0, w = ctxInfo.width, h = ctxInfo.height) => {
   let imgData = ctx.getImageData(x, y, w, h)
   let r = 10 // 马赛克半径
   for (let i = 0; i < w; i += r) {
@@ -211,17 +227,31 @@ function DataURLToFile(dataUrl, filename = "file", type) {
 }
 
 /**
- * @description: 截取视频当前帧并下载
+ * @description: 截取视频当前帧并展示到image中
  * @param {*} filename 文件名
  */
 function manualCapture(filename = "picture") {
-  // let canvas = document.getElementById('cvs');
-  let file = DataURLToFile(cvs.toDataURL())
-  let aLink = document.createElement("a");
-  aLink.download = filename;
-  aLink.href = URL.createObjectURL(file);
-  aLink.click();
-  URL.revokeObjectURL(file);
+  shot.value = true
+  let canvas = document.getElementById('cvs')
+  let dataUrl = canvas.toDataURL('image/png')
+  let file = DataURLToFile(dataUrl, filename, 'image/png')
+  let img = document.getElementById('img')
+  img.src = URL.createObjectURL(file)
+}
+
+/**
+ * @description: 截取视频当前帧并下载
+ * @param {*} filename 文件名
+ */
+function download(filename = "picture") {
+  // let canvas = document.getElementById('canvas')
+  // let dataUrl = canvas.toDataURL('image/png')
+  // let file = DataURLToFile(dataUrl, filename, 'image/png')
+  let img = document.getElementById('img')
+  let a = document.createElement('a')
+  a.href = img.src
+  a.download = filename
+  a.click()
 }
 
 onMounted(() => {
@@ -270,5 +300,14 @@ input {
 
 input[type=range]:focus {
   outline: none;
+}
+
+.output {
+  margin-top: 50px;
+}
+
+.download {
+  position: absolute;
+  right: 0;
 }
 </style>
