@@ -122,7 +122,7 @@ const initCanvas = () => {
     if (mosaic) {
       let size = 80
       // 设置为马赛克覆盖头部
-      mosaicCanvas(ctx, ctxInfo.width / 2 - size / 2, 0.1 * ctxInfo.height, size, size)
+      mosaicCanvas(ctx, 10, ctxInfo.width / 2 - size / 2, 0.13 * ctxInfo.height, size, size)
     }
   }
   playVideo()
@@ -183,14 +183,14 @@ function setPxColor(imageData, x, y, color) {
 /**
  * @description: 将一个区域的像素点马赛克化
  * @param {*} ctx context 对象
+ * @param {*} r 马赛克块半径（方形）
  * @param {*} x 起始坐标 x
  * @param {*} y 起始坐标 y
  * @param {*} w 宽度
  * @param {*} h 高度
  */
-const mosaicCanvas = (ctx, x = 0, y = 0, w = ctxInfo.width, h = ctxInfo.height) => {
+const mosaicCanvas = (ctx, r = 10, x = 0, y = 0, w = ctxInfo.width, h = ctxInfo.height) => {
   let imgData = ctx.getImageData(x, y, w, h)
-  let r = 10 // 马赛克半径
   for (let i = 0; i < w; i += r) {
     for (let j = 0; j < h; j += r) {
       let color = getPxColor(imgData, i, j)
