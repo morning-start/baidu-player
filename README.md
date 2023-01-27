@@ -1,10 +1,6 @@
 # 播放器组件
 
-vite + vue3 +[antd](https://www.antdv.com/docs/vue/introduce-cn)
-
-使用 canvas 替代 video 功能，后续会用封装好的解码器来完成替代。
-
-目前只进行函数封装了，后续会进行组件封装
+使用 vue3+vite+Antd 完成 Player 组件。用 canvas 替代 video，功能封装为函数。完成切换清晰度，截屏，反色，区域马赛克。
 
 ## 功能
 
@@ -13,7 +9,24 @@ vite + vue3 +[antd](https://www.antdv.com/docs/vue/introduce-cn)
 - [x] 截屏
 - [x] 视频反色
 - [x] 局部马赛克
-- [ ] 解码器替代 video
+
+### 功能展示
+
+切换清晰度
+
+![切换清晰度](/images/切换清晰度.gif)
+
+截屏
+
+![截屏](/images/截屏.gif)
+
+反色
+
+![反色](/images/反色.gif)
+
+局部马赛克
+
+![局部马赛克](/images/马赛克.gif)
 
 ## 播放器组件---Player
 
@@ -22,3 +35,16 @@ vite + vue3 +[antd](https://www.antdv.com/docs/vue/introduce-cn)
 - container：视频控制条
 - video：视频
 - canvas：视频画布
+
+## 特点
+
+1. 切换清晰度：保证了切换前后的播放进度和播放暂停状态的一致性
+2. 截屏：一键截取整个视频画面，并显示到下方 image 中，同时支持下载
+3. 局部马赛克：抽象为 2d 方式，方便使用。支持自定义马赛克大小
+4. 自定义控制条：control 为自定义控制条
+
+## TODO
+
+- [ ] 解码器替代 video
+- [ ] 各功能拆分为独立的组件
+- [ ] 支持直播
