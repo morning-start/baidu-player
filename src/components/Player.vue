@@ -1,5 +1,5 @@
 <template>
-  <div class="player" style="{ width: 600 }">
+  <div class="player" style="{ width: 800 }">
     <video id="video" :src="defInfo.videoSrc[defInfo.defIndex]" ref="myVideo" :width="videoInfo.width"
       :currentTime="videoInfo.currentTime" crossOrigin="anonymous" />
 
@@ -54,7 +54,7 @@ let setting = {
 }
 
 let videoInfo = reactive({
-  width: 600, // 视频宽度
+  width: 800, // 视频宽度
   status: false, // 播放状态 0 暂停 1 播放
   duration: 0, // 总时长
   currentTime: 0, // 当前播放时间
@@ -62,8 +62,8 @@ let videoInfo = reactive({
 
 let defInfo = reactive({
   defIndex: 1,
-  definition: ['流畅', '标清', '高清'],
-  videoSrc: ['/public/Butterfly Anime Girl.mp4', '/public/《崩坏3》识之律者.mp4', '/public/《崩坏3》迷城骇兔.mp4']
+  definition: ['480P', '720P', '1080P'],
+  videoSrc: ['/public/《崩坏3》识之律者_480P.mp4', '/public/《崩坏3》识之律者_720P.mp4', '/public/《崩坏3》识之律者_1080P.mp4']
 })
 
 let ctxInfo = {
@@ -100,7 +100,7 @@ function switchDef(i) {
   if (i == defInfo.defIndex) return;// 防止重复点击
   defInfo.defIndex = i;
   // console.log(i);
-  myVideo.value.pause()
+  myVideo.value.autoplay = videoInfo.status;// 播放与否和切换前保持一致
 }
 
 /**
