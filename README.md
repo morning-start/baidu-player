@@ -1,6 +1,6 @@
 # 播放器组件
 
-使用 vue3+vite+Antd 完成 Player 组件。用 canvas 替代 video，功能封装为函数。完成切换清晰度，截屏，反色，区域马赛克。
+使用 vue3+vite+Antd **完成 Player 组件**。用 canvas 替代 video，功能封装为函数。完成切换清晰度，截屏，反色，区域马赛克。
 
 ## 功能
 
