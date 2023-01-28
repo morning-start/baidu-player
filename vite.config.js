@@ -11,4 +11,5 @@ export default defineConfig({
       resolvers: [AntDesignVueResolver()],
     }),
   ],
+  base:'player'
 });
