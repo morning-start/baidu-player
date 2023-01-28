@@ -63,7 +63,7 @@ let videoInfo = reactive({
 let defInfo = reactive({
   defIndex: 1,
   definition: ['480P', '720P', '1080P'],
-  videoSrc: ['/public/《崩坏3》识之律者_480P.mp4', '/public/《崩坏3》识之律者_720P.mp4', '/public/《崩坏3》识之律者_1080P.mp4']
+  videoSrc: ['/《崩坏3》识之律者_480P.mp4', '/《崩坏3》识之律者_720P.mp4', '/《崩坏3》识之律者_1080P.mp4']
 })
 
 let ctxInfo = {
